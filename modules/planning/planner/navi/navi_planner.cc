@@ -23,10 +23,10 @@
 
 #include <utility>
 
+#include "absl/strings/str_cat.h"
 #include "cyber/common/log.h"
 #include "modules/common/math/math_utils.h"
 #include "modules/common/time/time.h"
-#include "modules/common/util/string_tokenizer.h"
 #include "modules/common/util/string_util.h"
 #include "modules/common/vehicle_state/vehicle_state_provider.h"
 #include "modules/map/hdmap/hdmap.h"
@@ -88,8 +88,7 @@ Status NaviPlanner::Init(const PlanningConfig& config) {
   }
   for (auto& task : tasks_) {
     if (!task->Init(config)) {
-      std::string msg(
-          common::util::StrCat("Init task[", task->Name(), "] failed."));
+      std::string msg(absl::StrCat("Init task[", task->Name(), "] failed."));
       AERROR << msg;
       return Status(ErrorCode::PLANNING_ERROR, msg);
     }

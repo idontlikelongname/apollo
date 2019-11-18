@@ -123,6 +123,7 @@ DECLARE_bool(enable_nudge_slowdown);
 DECLARE_bool(enable_always_stop_for_pedestrian);
 DECLARE_double(static_obstacle_nudge_l_buffer);
 DECLARE_double(nonstatic_obstacle_nudge_l_buffer);
+DECLARE_double(lane_change_obstacle_nudge_l_buffer);
 DECLARE_double(lateral_ignore_buffer);
 DECLARE_double(min_stop_distance_obstacle);
 DECLARE_double(max_stop_distance_obstacle);
@@ -289,3 +290,9 @@ DECLARE_bool(enable_lane_change_urgency_checking);
 DECLARE_double(short_path_length_threshold);
 
 DECLARE_uint64(trajectory_stitching_preserved_length);
+
+DECLARE_bool(use_st_drivable_boundary);
+
+DECLARE_bool(enable_prioritize_change_lane);
+
+DECLARE_bool(enable_remove_change_lane);

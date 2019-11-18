@@ -155,16 +155,6 @@ void uniform_slice(const T start, const T end, uint32_t num,
   sliced->at(num) = end;
 }
 
-template <typename Container>
-typename Container::value_type MaxElement(const Container& elements) {
-  return *std::max_element(elements.begin(), elements.end());
-}
-
-template <typename Container>
-typename Container::value_type MinElement(const Container& elements) {
-  return *std::min_element(elements.begin(), elements.end());
-}
-
 template <typename T>
 std::unordered_set<T> Intersection(const std::unordered_set<T>& s1,
                                    const std::unordered_set<T>& s2) {
@@ -211,25 +201,6 @@ bool SamePointXY(const U& u, const V& v) {
 PathPoint GetWeightedAverageOfTwoPathPoints(const PathPoint& p1,
                                             const PathPoint& p2,
                                             const double w1, const double w2);
-
-// a wrapper template function for remove_if (notice that remove_if cannot
-// change the Container size)
-template <class Container, class F>
-void erase_where(Container& c, F&& f) {  // NOLINT
-  c.erase(std::remove_if(c.begin(), c.end(), std::forward<F>(f)), c.end());
-}
-
-// a wrapper template function for remove_if on associative containers
-template <class Container, class F>
-void erase_map_where(Container& c, F&& f) {  // NOLINT
-  for (auto it = c.begin(); it != c.end();) {
-    if (f(*it)) {
-      it = c.erase(it);
-    } else {
-      ++it;
-    }
-  }
-}
 
 template <typename T>
 void QuaternionToRotationMatrix(const T* quat, T* R) {

@@ -70,7 +70,8 @@ GriddedPathTimeGraph::GriddedPathTimeGraph(
       obstacles_(obstacles),
       init_point_(init_point),
       dp_st_cost_(dp_config, st_graph_data_.total_time_by_conf(),
-                  st_graph_data_.path_length(), obstacles, init_point_) {
+                  st_graph_data_.path_length(), obstacles,
+                  st_graph_data_.st_drivable_boundary(), init_point_) {
   total_length_t_ = st_graph_data_.total_time_by_conf();
   unit_t_ = gridded_path_time_graph_config_.unit_t();
   total_length_s_ = st_graph_data_.path_length();
@@ -145,11 +146,21 @@ Status GriddedPathTimeGraph::Search(SpeedData* const speed_data) {
 Status GriddedPathTimeGraph::InitCostTable() {
   // Time dimension is homogeneous while Spatial dimension has two resolutions,
   // dense and sparse with dense resolution coming first in the spatial horizon
-  // The least meaningful unit_t_
+
+  // Sanity check for numerical stability
   if (unit_t_ < kDoubleEpsilon) {
-    // Sanity check for numerical stability
-    AERROR << "unit_t is smaller than the kDoubleEpsilon.";
+    const std::string msg = "unit_t is smaller than the kDoubleEpsilon.";
+    AERROR << msg;
+    return Status(ErrorCode::PLANNING_ERROR, msg);
   }
+
+  // Sanity check on s dimension setting
+  if (dense_dimension_s_ < 1) {
+    const std::string msg = "dense_dimension_s is at least 1.";
+    AERROR << msg;
+    return Status(ErrorCode::PLANNING_ERROR, msg);
+  }
+
   dimension_t_ = static_cast<uint32_t>(std::ceil(
                      total_length_t_ / static_cast<double>(unit_t_))) +
                  1;
@@ -185,7 +196,8 @@ Status GriddedPathTimeGraph::InitCostTable() {
     for (uint32_t j = 0; j < dense_dimension_s_; ++j, curr_s += dense_unit_s_) {
       cost_table_i[j].Init(i, j, STPoint(curr_s, curr_t));
     }
-    curr_s = static_cast<double>(dense_dimension_s_ - 1) * dense_unit_s_;
+    curr_s = static_cast<double>(dense_dimension_s_ - 1) * dense_unit_s_ +
+             sparse_unit_s_;
     for (uint32_t j = dense_dimension_s_; j < cost_table_i.size();
          ++j, curr_s += sparse_unit_s_) {
       cost_table_i[j].Init(i, j, STPoint(curr_s, curr_t));

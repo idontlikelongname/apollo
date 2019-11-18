@@ -23,13 +23,13 @@
 
 #include "Eigen/LU"
 
+#include "absl/strings/str_cat.h"
 #include "cyber/common/log.h"
 #include "modules/common/configs/vehicle_config_helper.h"
 #include "modules/common/math/linear_quadratic_regulator.h"
 #include "modules/common/math/math_utils.h"
 #include "modules/common/math/quaternion.h"
 #include "modules/common/time/time.h"
-#include "modules/common/util/string_util.h"
 #include "modules/control/common/control_gflags.h"
 
 namespace apollo {
@@ -39,7 +39,6 @@ using apollo::common::ErrorCode;
 using apollo::common::Status;
 using apollo::common::TrajectoryPoint;
 using apollo::common::VehicleStateProvider;
-using apollo::common::util::StrCat;
 using Matrix = Eigen::MatrixXd;
 using apollo::common::time::Clock;
 
@@ -139,19 +138,17 @@ bool LatController::LoadControlConf(const ControlConf *control_conf) {
 
 void LatController::ProcessLogs(const SimpleLateralDebug *debug,
                                 const canbus::Chassis *chassis) {
-  // StrCat supports 9 arguments at most.
-  const std::string log_str = StrCat(
-      StrCat(debug->lateral_error(), ",", debug->ref_heading(), ",",
-             debug->heading(), ",", debug->heading_error(), ","),
-      StrCat(debug->heading_error_rate(), ",", debug->lateral_error_rate(), ",",
-             debug->curvature(), ",", debug->steer_angle(), ","),
-      StrCat(debug->steer_angle_feedforward(), ",",
-             debug->steer_angle_lateral_contribution(), ",",
-             debug->steer_angle_lateral_rate_contribution(), ",",
-             debug->steer_angle_heading_contribution(), ","),
-      StrCat(debug->steer_angle_heading_rate_contribution(), ",",
-             debug->steer_angle_feedback(), ",", chassis->steering_percentage(),
-             ",", VehicleStateProvider::Instance()->linear_velocity()));
+  const std::string log_str = absl::StrCat(
+      debug->lateral_error(), ",", debug->ref_heading(), ",", debug->heading(),
+      ",", debug->heading_error(), ",", debug->heading_error_rate(), ",",
+      debug->lateral_error_rate(), ",", debug->curvature(), ",",
+      debug->steer_angle(), ",", debug->steer_angle_feedforward(), ",",
+      debug->steer_angle_lateral_contribution(), ",",
+      debug->steer_angle_lateral_rate_contribution(), ",",
+      debug->steer_angle_heading_contribution(), ",",
+      debug->steer_angle_heading_rate_contribution(), ",",
+      debug->steer_angle_feedback(), ",", chassis->steering_percentage(), ",",
+      VehicleStateProvider::Instance()->linear_velocity());
   if (FLAGS_enable_csv_debug) {
     steer_log_file_ << log_str << std::endl;
   }
@@ -231,11 +228,11 @@ Status LatController::Init(const ControlConf *control_conf) {
   int reverse_q_param_size =
       control_conf_->lat_controller_conf().reverse_matrix_q_size();
   if (matrix_size != q_param_size || matrix_size != reverse_q_param_size) {
-    const auto error_msg =
-        StrCat("lateral controller error: matrix_q size: ", q_param_size,
-               "lateral controller error: reverse_matrix_q size: ",
-               reverse_q_param_size,
-               " in parameter file not equal to matrix_size: ", matrix_size);
+    const auto error_msg = absl::StrCat(
+        "lateral controller error: matrix_q size: ", q_param_size,
+        "lateral controller error: reverse_matrix_q size: ",
+        reverse_q_param_size,
+        " in parameter file not equal to matrix_size: ", matrix_size);
     AERROR << error_msg;
     return Status(ErrorCode::CONTROL_COMPUTE_ERROR, error_msg);
   }
@@ -507,15 +504,15 @@ Status LatController::ComputeControlCommand(
   // Compute the steering command limit with the given maximum lateral
   // acceleration
   const double steer_limit =
-      (FLAGS_set_steer_limit) ? std::atan(max_lat_acc_ * wheelbase_ /
-                                          (vehicle_state->linear_velocity() *
-                                           vehicle_state->linear_velocity())) *
-                                    steer_ratio_ * 180 / M_PI /
-                                    steer_single_direction_max_degree_ * 100
-                              : 100.0;
+      FLAGS_set_steer_limit ? std::atan(max_lat_acc_ * wheelbase_ /
+                                        (vehicle_state->linear_velocity() *
+                                         vehicle_state->linear_velocity())) *
+                                  steer_ratio_ * 180 / M_PI /
+                                  steer_single_direction_max_degree_ * 100
+                            : 100.0;
 
   const double steer_diff_with_max_rate =
-      (FLAGS_enable_maximum_steer_rate_limit)
+      FLAGS_enable_maximum_steer_rate_limit
           ? vehicle_param_.max_steer_angle_rate() * ts_ * 180 / M_PI /
                 steer_single_direction_max_degree_ * 100
           : 100.0;

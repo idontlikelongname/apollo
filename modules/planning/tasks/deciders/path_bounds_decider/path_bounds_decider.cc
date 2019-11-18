@@ -26,8 +26,8 @@
 #include <utility>
 #include <vector>
 
+#include "absl/strings/str_cat.h"
 #include "modules/common/configs/vehicle_config_helper.h"
-#include "modules/common/util/string_util.h"
 #include "modules/common/util/util.h"
 #include "modules/map/hdmap/hdmap_util.h"
 #include "modules/planning/common/path_boundary.h"
@@ -41,7 +41,6 @@ namespace planning {
 using apollo::common::ErrorCode;
 using apollo::common::Status;
 using apollo::common::VehicleConfigHelper;
-using apollo::common::util::StrCat;
 using apollo::hdmap::HDMapUtil;
 
 namespace {
@@ -247,7 +246,7 @@ Status PathBoundsDecider::Process(
     }
     // RecordDebugInfo(regular_path_bound, "", reference_line_info);
     candidate_path_boundaries.back().set_label(
-        StrCat("regular/", path_label, "/", borrow_lane_type));
+        absl::StrCat("regular/", path_label, "/", borrow_lane_type));
     candidate_path_boundaries.back().set_blocking_obstacle_id(
         blocking_obstacle_id);
   }
@@ -583,8 +582,10 @@ bool PathBoundsDecider::FindEmergencyPullOverS(
                                      ->GetConfig()
                                      .vehicle_param()
                                      .min_turn_radius();
-  constexpr double kAdjustFactor = 2.0;
-  const double pull_over_distance = min_turn_radius * 2 * kAdjustFactor;
+  const double adjust_factor =
+      config_.path_bounds_decider_config()
+          .pull_over_approach_lon_distance_adjust_factor();
+  const double pull_over_distance = min_turn_radius * 2 * adjust_factor;
   *pull_over_s = adc_end_s + pull_over_distance;
 
   return true;

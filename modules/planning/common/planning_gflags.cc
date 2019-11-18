@@ -256,6 +256,8 @@ DEFINE_double(static_obstacle_nudge_l_buffer, 0.3,
               "minimum l-distance to nudge a static obstacle (meters)");
 DEFINE_double(nonstatic_obstacle_nudge_l_buffer, 0.4,
               "minimum l-distance to nudge a non-static obstacle (meters)");
+DEFINE_double(lane_change_obstacle_nudge_l_buffer, 0.3,
+              "minimum l-distance to nudge when changing lane (meters)");
 DEFINE_double(lateral_ignore_buffer, 3.0,
               "If an obstacle's lateral distance is further away than this "
               "distance, ignore it");
@@ -590,3 +592,12 @@ DEFINE_uint64(trajectory_stitching_preserved_length, 20,
 
 DEFINE_double(side_pass_driving_width_l_buffer, 0.1,
               "(unit: meter) for side pass driving width l buffer");
+
+DEFINE_bool(use_st_drivable_boundary, false,
+            "True to use st_drivable boundary in speed planning");
+
+DEFINE_bool(enable_prioritize_change_lane, false,
+            "True to enable prioritize change_lane reference line");
+
+DEFINE_bool(enable_remove_change_lane, false,
+            "True to enable remove change_lane reference line");
