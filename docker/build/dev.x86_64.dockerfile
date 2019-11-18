@@ -2,7 +2,8 @@ FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update -y && \
+RUN apt-get clean -y && \
+    apt-get update -y && \
     apt-get install -y \
     apt-transport-https \
     autotools-dev \
@@ -55,19 +56,28 @@ RUN bash /tmp/installers/install_adv_plat.sh
 RUN bash /tmp/installers/install_bazel.sh
 RUN bash /tmp/installers/install_bazel_packages.sh
 RUN bash /tmp/installers/install_bosfs.sh
+COPY modified_installers/install_conda.sh /tmp/installers/install_conda.sh
 RUN bash /tmp/installers/install_conda.sh
 RUN bash /tmp/installers/install_ffmpeg.sh
 RUN bash /tmp/installers/install_gflags_glog.sh
+COPY modified_installers/install_glew.sh /tmp/installers/install_glew.sh
 RUN bash /tmp/installers/install_glew.sh
 RUN bash /tmp/installers/install_google_styleguide.sh
-RUN bash /tmp/installers/install_gpu_caffe.sh
+# RUN bash /tmp/installers/install_gpu_caffe.sh
 RUN bash /tmp/installers/install_ipopt.sh
 RUN bash /tmp/installers/install_osqp.sh
 RUN bash /tmp/installers/install_libjsonrpc-cpp.sh
 RUN bash /tmp/installers/install_nlopt.sh
 RUN bash /tmp/installers/install_node.sh
+RUN apt update -y &&\
+    apt install -y nasm
 RUN bash /tmp/installers/install_openh264.sh
+USER root
+COPY modified_installers/ota_security.tar.gz /tmp/installers/ota_security.tar.gz
+COPY modified_installers/install_ota.sh /tmp/installers/install_ota.sh
 RUN bash /tmp/installers/install_ota.sh
+COPY modified_installers/pcl-1.7.2.tar.gz /tmp/installers/pcl-1.7.2.tar.gz
+COPY modified_installers/install_pcl.sh /tmp/installers/install_pcl.sh
 RUN bash /tmp/installers/install_pcl.sh
 RUN bash /tmp/installers/install_poco.sh
 RUN bash /tmp/installers/install_protobuf.sh

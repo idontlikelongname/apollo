@@ -59,13 +59,14 @@ RUN ln -s /usr/bin/g++-4.8 /etc/alternatives/g++
 RUN ln -s /etc/alternatives/g++ /usr/bin/g++
 
 # Run installer
-COPY installers /tmp/installers
+COPY installers_cyber /tmp/installers
 RUN bash /tmp/installers/install_bazel.sh
 RUN bash /tmp/installers/install_gflags_glog.sh
 RUN bash /tmp/installers/install_protobuf.sh
 RUN bash /tmp/installers/install_bazel_packages.sh
 RUN bash /tmp/installers/install_google_styleguide.sh
 RUN bash /tmp/installers/install_osqp.sh
+RUN apt install libasound2-dev -y
 RUN bash /tmp/installers/install_python_modules.sh
 
 # Add Bionic source
